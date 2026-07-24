@@ -12,7 +12,10 @@ final class NCDStatusItemController: NSObject, NSPopoverDelegate {
             return
         }
 
-        button.image = NSImage(systemSymbolName: "cat.fill", accessibilityDescription: "NyextStep Catgirl Downloader")
+        let menuBarImage = NSImage(named: "NCDMenuBarCat")
+        menuBarImage?.isTemplate = true
+        button.image = menuBarImage
+        button.setAccessibilityLabel("NyextStep Catgirl Downloader")
         button.target = self
         button.action = #selector(togglePopover)
 
