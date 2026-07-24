@@ -6,7 +6,13 @@ NyextStep Catgirl Downloader is a macOS menu bar app that fetches and displays c
 
 ![NyextStep Catgirl Downloader app icon](Design/Icon/Previews/NyextStepCatgirlDownloader-compiled.png)
 
-Download the signed macOS release from [GitHub Releases](https://github.com/gaelic-ghost/NyextStepCatgirlDownloader/releases). The project is still being actively polished.
+Install with [Homebrew](https://brew.sh/):
+
+```sh
+brew install --cask gaelic-ghost/tap/nyextstep-catgirl-downloader
+```
+
+Or download the signed macOS release from [GitHub Releases](https://github.com/gaelic-ghost/NyextStepCatgirlDownloader/releases). The project is still being actively polished.
 
 ## License
 
