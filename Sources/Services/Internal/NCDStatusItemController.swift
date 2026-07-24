@@ -18,12 +18,12 @@ final class NCDStatusItemController: NSObject, NSPopoverDelegate {
 
         popover.behavior = .transient
         popover.delegate = self
-        popover.contentSize = NSSize(width: 420, height: 520)
-        popover.contentViewController = NSHostingController(rootView: NCDPopoverView(session: session))
-    }
-
-    @objc private func togglePopover() {
-        popover.isShown ? popover.performClose(nil) : showPopover()
+        popover.contentSize = NSSize(width: 460, height: 460)
+        popover.contentViewController = NSHostingController(
+            rootView: NCDPopoverView(session: session) { [weak self] size in
+                self?.updatePopoverSize(size)
+            }
+        )
     }
 
     func showPopover() {
@@ -37,5 +37,13 @@ final class NCDStatusItemController: NSObject, NSPopoverDelegate {
 
         NSApp.activate(ignoringOtherApps: true)
         session.revealCurrentImage()
+    }
+
+    @objc private func togglePopover() {
+        popover.isShown ? popover.performClose(nil) : showPopover()
+    }
+
+    private func updatePopoverSize(_ size: CGSize) {
+        popover.contentSize = size
     }
 }

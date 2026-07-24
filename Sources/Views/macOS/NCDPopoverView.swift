@@ -3,74 +3,53 @@ import SwiftUI
 struct NCDPopoverView: View {
     @Bindable var session: NCDImageSession
 
-    var body: some View {
-        ZStack {
-            NCDImageCardView(
-                image: session.currentImage?.image,
-                isLoading: session.isLoading,
-                errorMessage: session.errorMessage,
-                isShutterClosed: session.isShutterClosed
-            )
+    let onIdealSizeChange: (CGSize) -> Void
 
-            VStack {
-                Spacer()
-
-                GlassEffectContainer(spacing: 16) {
-                    HStack {
-                        Button(action: session.goBack) {
-                            Image(systemName: "chevron.backward")
-                                .frame(width: 18, height: 18)
-                        }
-                        .buttonStyle(.plain)
-                        .padding(12)
-                        .glassEffect(.regular.interactive(), in: .circle)
-                        .disabled(session.previousImage == nil)
-                        .accessibilityLabel("Show previous image")
-
-                        Spacer()
-
-                        Button {
-                            Task { await session.reload() }
-                        } label: {
-                            Label(session.isLoading ? "Loading" : "Reload", systemImage: "arrow.clockwise")
-                                .frame(minWidth: 96)
-                        }
-                        .buttonStyle(.plain)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
-                        .glassEffect(.regular.interactive(), in: .capsule)
-                        .disabled(session.isLoading)
-
-                        Spacer()
-
-                        if let image = session.currentImage {
-                            Button {
-                                guard let image = image.image else {
-                                    return
-                                }
-
-                                NCDShareService.present(image: image)
-                            } label: {
-                                Image(systemName: "square.and.arrow.up")
-                                    .frame(width: 18, height: 18)
-                            }
-                            .buttonStyle(.plain)
-                            .padding(12)
-                            .glassEffect(.regular.interactive(), in: .circle)
-                            .accessibilityLabel("Share image")
-                        } else {
-                            Image(systemName: "square.and.arrow.up")
-                                .frame(width: 18, height: 18)
-                                .padding(12)
-                                .glassEffect(in: .circle)
-                                .accessibilityHidden(true)
-                        }
-                    }
-                }
-                .padding(20)
-            }
+    private var idealSize: CGSize {
+        let width = 460.0
+        guard let image = session.currentImage?.image, image.size.width > 0 else {
+            return CGSize(width: width, height: width)
         }
-        .frame(width: 420, height: 520)
+
+        let height = min(max(width * image.size.height / image.size.width, 300), 680)
+        return CGSize(width: width, height: height)
+    }
+
+    var body: some View {
+        NCDImageCardView(
+            image: session.currentImage?.image,
+            imageID: session.currentImage?.id,
+            isLoading: session.isLoading,
+            errorMessage: session.errorMessage,
+            isShutterClosed: session.isShutterClosed,
+            imageTransitionDirection: session.imageTransitionDirection,
+            controls: NCDImageCardControls(
+                historyDirection: session.historyDirection,
+                canNavigateHistory: session.previousImage != nil,
+                isLoading: session.isLoading,
+                canShare: session.currentImage?.image != nil,
+                navigateHistory: session.navigateHistory,
+                reload: { Task { await session.reload() } },
+                share: {
+                    guard let image = session.currentImage?.image else {
+                        return
+                    }
+
+                    NCDShareService.present(image: image)
+                }
+            )
+        )
+        .frame(width: idealSize.width, height: idealSize.height)
+        .onAppear { onIdealSizeChange(idealSize) }
+        .onChange(of: session.currentImage?.id) { _, _ in
+            onIdealSizeChange(idealSize)
+        }
+        .background {
+            NCDHorizontalScrollGesture(
+                scrollLeft: { Task { await session.navigateForwardOrReload() } },
+                scrollRight: session.navigateHistory
+            )
+        }
         .task {
             if session.currentImage == nil {
                 await session.reload()

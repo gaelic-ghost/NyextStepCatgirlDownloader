@@ -4,7 +4,7 @@ import Testing
 
 @MainActor
 struct NCDImageSessionTests {
-    @Test func reloadCachesOnlyThePriorImageAndBackConsumesIt() async throws {
+    @Test func reloadCachesOneImageAndHistoryNavigationSwapsDirections() async throws {
         let firstImage = try NCDImage(data: Data([1]), sourceURL: #require(URL(string: "https://example.com/one")), suggestedFilename: "one.jpg")
         let secondImage = try NCDImage(data: Data([2]), sourceURL: #require(URL(string: "https://example.com/two")), suggestedFilename: "two.jpg")
         var images = [firstImage, secondImage]
@@ -18,8 +18,14 @@ struct NCDImageSessionTests {
         #expect(session.currentImage == secondImage)
         #expect(session.previousImage == firstImage)
 
-        session.goBack()
+        session.navigateHistory()
         #expect(session.currentImage == firstImage)
-        #expect(session.previousImage == nil)
+        #expect(session.previousImage == secondImage)
+        #expect(session.historyDirection == .forward)
+
+        session.navigateHistory()
+        #expect(session.currentImage == secondImage)
+        #expect(session.previousImage == firstImage)
+        #expect(session.historyDirection == .backward)
     }
 }

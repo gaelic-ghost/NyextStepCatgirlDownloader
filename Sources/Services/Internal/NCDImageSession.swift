@@ -10,6 +10,8 @@ final class NCDImageSession {
     private(set) var isLoading = false
     private(set) var errorMessage: String?
     var isShutterClosed = false
+    private(set) var historyDirection: NCDImageHistoryDirection = .backward
+    private(set) var imageTransitionDirection: NCDImageTransitionDirection = .forward
 
     private let loadNextImage: () async throws -> NCDImage
     private let audioCuePlayer: NCDAudioCuePlayer
@@ -35,8 +37,12 @@ final class NCDImageSession {
 
         do {
             let nextImage = try await loadNextImage()
-            previousImage = currentImage
-            currentImage = nextImage
+            imageTransitionDirection = .forward
+            withAnimation(.snappy(duration: 0.32, extraBounce: 0)) {
+                previousImage = currentImage
+                currentImage = nextImage
+                historyDirection = .backward
+            }
             audioCuePlayer.playReveal()
         } catch {
             errorMessage = error.localizedDescription
@@ -48,13 +54,26 @@ final class NCDImageSession {
         isLoading = false
     }
 
-    func goBack() {
+    func navigateHistory() {
         guard let previousImage else {
             return
         }
 
-        currentImage = previousImage
-        self.previousImage = nil
+        imageTransitionDirection = historyDirection == .backward ? .backward : .forward
+        withAnimation(.snappy(duration: 0.32, extraBounce: 0)) {
+            let displayedImage = currentImage
+            currentImage = previousImage
+            self.previousImage = displayedImage
+            historyDirection = historyDirection == .backward ? .forward : .backward
+        }
+    }
+
+    func navigateForwardOrReload() async {
+        if historyDirection == .forward, previousImage != nil {
+            navigateHistory()
+        } else {
+            await reload()
+        }
     }
 
     func revealCurrentImage() {
@@ -71,4 +90,14 @@ final class NCDImageSession {
             isShutterClosed = false
         }
     }
+}
+
+enum NCDImageHistoryDirection: Equatable {
+    case backward
+    case forward
+}
+
+enum NCDImageTransitionDirection: Equatable {
+    case backward
+    case forward
 }
