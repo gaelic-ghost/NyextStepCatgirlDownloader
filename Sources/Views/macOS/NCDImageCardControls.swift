@@ -17,7 +17,7 @@ struct NCDImageCardControls: View {
                         Image(systemName: historyDirection == .backward ? "chevron.backward" : "chevron.forward")
                             .frame(width: 18, height: 18)
                     }
-                    .buttonStyle(.glassProminent)
+                    .buttonStyle(.glass)
                     .controlSize(.large)
                     .accessibilityLabel(historyDirection == .backward ? "Show previous image" : "Show latest image")
                 } else {
@@ -34,9 +34,8 @@ struct NCDImageCardControls: View {
                 Button(action: reload) {
                     Label(isLoading ? "Loading" : "Reload", systemImage: "arrow.clockwise")
                 }
-                .buttonStyle(.glassProminent)
+                .buttonStyle(.glass)
                 .controlSize(.large)
-                .tint(.indigo)
                 .disabled(isLoading)
 
                 Spacer()
@@ -45,11 +44,12 @@ struct NCDImageCardControls: View {
                     Image(systemName: "square.and.arrow.up")
                         .frame(width: 18, height: 18)
                 }
-                .buttonStyle(.glassProminent)
+                .buttonStyle(.glass)
                 .controlSize(.large)
                 .disabled(!canShare)
                 .accessibilityLabel("Share image")
             }
+            .shadow(color: .black.opacity(0.32), radius: 9, x: 0, y: 5)
         }
     }
 }

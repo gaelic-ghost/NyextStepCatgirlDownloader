@@ -11,6 +11,7 @@ struct NCDHorizontalScrollGesture: NSViewRepresentable {
         private var eventMonitor: Any?
         private var accumulatedHorizontalDelta = 0.0
         private var hasRecognizedGesture = false
+        private var resetWorkItem: DispatchWorkItem?
 
         init(scrollLeft: @escaping () -> Void, scrollRight: @escaping () -> Void) {
             self.scrollLeft = scrollLeft
@@ -32,6 +33,7 @@ struct NCDHorizontalScrollGesture: NSViewRepresentable {
         }
 
         func removeMonitor() {
+            resetWorkItem?.cancel()
             if let eventMonitor {
                 NSEvent.removeMonitor(eventMonitor)
                 self.eventMonitor = nil
@@ -53,8 +55,14 @@ struct NCDHorizontalScrollGesture: NSViewRepresentable {
                 return false
             }
 
+            beginGestureIfNeeded(for: event)
+            if event.momentumPhase != [] {
+                resetWorkItem?.cancel()
+            }
+
             accumulatedHorizontalDelta += horizontalDelta
             guard !hasRecognizedGesture, abs(accumulatedHorizontalDelta) >= 48 else {
+                scheduleResetAfterGestureEndIfNeeded(for: event)
                 return true
             }
 
@@ -65,11 +73,35 @@ struct NCDHorizontalScrollGesture: NSViewRepresentable {
                 scrollRight()
             }
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            scheduleResetAfterGestureEndIfNeeded(for: event)
+            return true
+        }
+
+        private func beginGestureIfNeeded(for event: NSEvent) {
+            guard event.phase == .began else {
+                return
+            }
+
+            resetWorkItem?.cancel()
+            resetWorkItem = nil
+            accumulatedHorizontalDelta = 0
+            hasRecognizedGesture = false
+        }
+
+        private func scheduleResetAfterGestureEndIfNeeded(for event: NSEvent) {
+            let hasEnded = event.phase == .ended || event.phase == .cancelled || event.momentumPhase == .ended || event.momentumPhase == .cancelled
+            let isDiscreteScroll = event.phase == [] && event.momentumPhase == []
+            guard hasEnded || isDiscreteScroll else {
+                return
+            }
+
+            resetWorkItem?.cancel()
+            let resetWorkItem = DispatchWorkItem { [weak self] in
                 self?.accumulatedHorizontalDelta = 0
                 self?.hasRecognizedGesture = false
             }
-            return true
+            self.resetWorkItem = resetWorkItem
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.75, execute: resetWorkItem)
         }
     }
 
