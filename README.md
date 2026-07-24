@@ -4,6 +4,8 @@
 
 NyextStep Catgirl Downloader is a macOS menu bar app that fetches and displays catgirl artwork in a lightweight popover. It is inspired by [Nyarch Linux's CatgirlDownloader](https://github.com/NyarchLinux/CatgirlDownloader).
 
+![NyextStep Catgirl Downloader app icon](Design/Icon/Previews/NyextStepCatgirlDownloader-compiled.png)
+
 There are no release builds or DMG downloads yet. The project is being actively polished.
 
 ## License
