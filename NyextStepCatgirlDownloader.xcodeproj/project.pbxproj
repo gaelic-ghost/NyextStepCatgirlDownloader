@@ -118,8 +118,8 @@
 		33D89796E888B41B6E0FAC47 = {
 			isa = PBXGroup;
 			children = (
-				CDB75471567D157973D29E74 /* Configurations */,
 				513F77C5A469C579C4A705E8 /* Configurations */,
+				CDB75471567D157973D29E74 /* Configurations */,
 				48D5CC6DE71EE638B6591D5F /* Extensions */,
 				8DEDEF86D638226AD2FD2A2A /* Packages */,
 				B1D56BD095257455AD695E96 /* Scripts */,
