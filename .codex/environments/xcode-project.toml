@@ -1,0 +1,22 @@
+# Copy to .codex/environments/xcode-project.toml and replace NyextStepCatgirlDownloader.
+# Keep DerivedData inside the worktree so Codex GUI worktree validation is isolated.
+version = 1
+name = "xcode-project"
+
+[setup]
+script = "xcodebuild -scheme NyextStepCatgirlDownloader -derivedDataPath ./DerivedData -resolvePackageDependencies"
+
+[[actions]]
+name = "resolve packages"
+icon = "tool"
+command = "xcodebuild -scheme NyextStepCatgirlDownloader -derivedDataPath ./DerivedData -resolvePackageDependencies"
+
+[[actions]]
+name = "build"
+icon = "tool"
+command = "xcodebuild -scheme NyextStepCatgirlDownloader -derivedDataPath ./DerivedData build"
+
+[[actions]]
+name = "test"
+icon = "tool"
+command = "xcodebuild -scheme NyextStepCatgirlDownloader -derivedDataPath ./DerivedData test"

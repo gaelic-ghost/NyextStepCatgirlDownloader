@@ -1,0 +1,72 @@
+name: NyextStepCatgirlDownloader
+options:
+  minimumXcodeGenVersion: 2.46.0
+  projectFormat: xcode16_0
+  defaultConfig: Debug
+  defaultSourceDirectoryType: syncedFolder
+configs:
+  Debug: debug
+  Release: release
+fileGroups:
+  - Configurations
+  - Extensions
+  - Packages
+  - Scripts
+targets:
+  NyextStepCatgirlDownloader:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources
+        type: syncedFolder
+      - path: Shared
+        type: syncedFolder
+        excludes:
+          - "**/.gitkeep"
+    info:
+      path: Sources/Support/Info.plist
+      properties:
+        CFBundleDisplayName: NyextStep Catgirl Downloader
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSUIElement: true
+        CFBundleURLTypes:
+          - CFBundleTypeRole: Editor
+            CFBundleURLName: com.galewilliams.nyextstep-catgirldownloader
+            CFBundleURLSchemes:
+              - nyextstep
+    configFiles:
+      Debug: Configurations/App-Debug.xcconfig
+      Release: Configurations/App-Release.xcconfig
+  NyextStepCatgirlDownloaderTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: Tests
+        type: syncedFolder
+    dependencies:
+      - target: NyextStepCatgirlDownloader
+    configFiles:
+      Debug: Configurations/Tests-Debug.xcconfig
+      Release: Configurations/Tests-Release.xcconfig
+schemes:
+  NyextStepCatgirlDownloader:
+    build:
+      targets:
+        NyextStepCatgirlDownloader: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      gatherCoverageData: false
+      targets:
+        - name: NyextStepCatgirlDownloaderTests
+          parallelizable: true
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
+    management:
+      shared: true
